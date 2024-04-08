@@ -13,4 +13,8 @@ public class ConstantsUltils implements Serializable {
     public static final String RAABIT_FILA_PAGAMENTO_PEDIDO = "pagamento.pedido";
 
     public static final String RAABIT_EX_PAGAMENTO = "pagamentos.ex";
+
+    public static final String RAABIT_EX_DLX = "pagamentos.dlx";
+
+    public static final String RAABIT_FILA_PAGAMENTO_PEDIDO_DLQ = "pagamento.pedido-dlq";
 }

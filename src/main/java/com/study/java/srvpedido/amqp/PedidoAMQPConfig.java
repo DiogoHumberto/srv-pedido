@@ -10,8 +10,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static com.study.java.srvpedido.utils.ConstantsUltils.RAABIT_EX_PAGAMENTO;
-import static com.study.java.srvpedido.utils.ConstantsUltils.RAABIT_FILA_PAGAMENTO_PEDIDO;
+import static com.study.java.srvpedido.utils.ConstantsUltils.*;
 
 @Configuration
 public class PedidoAMQPConfig {
@@ -33,6 +32,27 @@ public class PedidoAMQPConfig {
         return BindingBuilder
                 .bind(filaEntrega())
                 .to(fanoutExchange());
+    }
+
+    @Bean
+    public FanoutExchange deadLetterExchange() {
+        return ExchangeBuilder
+                .fanoutExchange(RAABIT_EX_DLX)
+                .build();
+    }
+
+    @Bean
+    public Queue filaDlqEntrega() {
+
+        return QueueBuilder.nonDurable(RAABIT_FILA_PAGAMENTO_PEDIDO_DLQ).build();
+    }
+
+    //bing para fila deadLetter
+    @Bean
+    public Binding bindDlqPagamentoEntrega() {
+        return BindingBuilder
+                .bind(filaDlqEntrega())
+                .to(deadLetterExchange());
     }
 
     @Bean
