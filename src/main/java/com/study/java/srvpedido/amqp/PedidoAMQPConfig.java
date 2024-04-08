@@ -1,13 +1,49 @@
 package com.study.java.srvpedido.amqp;
 
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static com.study.java.srvpedido.utils.ConstantsUltils.RAABIT_EX_PAGAMENTO;
+import static com.study.java.srvpedido.utils.ConstantsUltils.RAABIT_FILA_PAGAMENTO_PEDIDO;
+
 @Configuration
 public class PedidoAMQPConfig {
+
+    @Bean
+    public Queue filaEntrega() {
+        return QueueBuilder.nonDurable(RAABIT_FILA_PAGAMENTO_PEDIDO).build();
+    }
+
+    @Bean
+    public FanoutExchange fanoutExchange() {
+        return ExchangeBuilder
+                .fanoutExchange(RAABIT_EX_PAGAMENTO)
+                .build();
+    }
+
+    @Bean
+    public Binding bindPagamentoPedido() {
+        return BindingBuilder
+                .bind(filaEntrega())
+                .to(fanoutExchange());
+    }
+
+    @Bean
+    public RabbitAdmin criaRabbitAdmin(ConnectionFactory conn) {
+        return new RabbitAdmin(conn);
+    }
+
+    @Bean
+    public ApplicationListener<ApplicationReadyEvent> inicializaAdmin(RabbitAdmin rabbitAdmin) {
+        return event -> rabbitAdmin.initialize();
+    }
 
     @Bean
     public Jackson2JsonMessageConverter messageConverter(){
